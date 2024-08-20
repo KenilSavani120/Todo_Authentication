@@ -70,9 +70,10 @@ export const userRegister = async (req, res) => {
         const hashedPassword = await hashPassword(password);
 
         // Create and save the new user entry
-        const newEmail = await users.create({ ...req.body, password: hashedPassword });
+        const newUser = await users.create({ ...req.body, password: hashedPassword });
+        newEmail.password = undefined
         return res.status(200).json({
-            data: newEmail,
+            data:newUser,
             message: "User added successfully"
         });
     } catch (error) {
@@ -108,6 +109,13 @@ export const userLogin = async (req, res) => {
         // console.log('Request password:', password);
         // console.log('Stored password:', user.password);
 
+        if(user.password === undefined) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                success: false,
+                message: "this email is login via google account",
+            });
+        }
+
         // Check user password | Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -119,11 +127,11 @@ export const userLogin = async (req, res) => {
 
         // Generate tokens
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '10s',
+            expiresIn: '100s',
         });
 
         const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '6s',
+            expiresIn: '60  s',
         });
 
         // Decode the tokens to get expiration times
