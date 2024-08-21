@@ -29,7 +29,7 @@ app.use(passport.session());
 connectDb();
 
 // Routes setup
-app.use('/v1/users', router); // Apply authenticateToken middleware to protect routes
+app.use('/api/v1/users', router); // Apply authenticateToken middleware to protect routes
 
 // Google OAuth routes
 app.get('/auth/google',

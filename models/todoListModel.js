@@ -12,7 +12,7 @@ const todoListSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User' // Optional: if you want to populate the user information
+        ref: 'User' //  if you want to populate the user information
     },
     createdOn: {
         type: Date,

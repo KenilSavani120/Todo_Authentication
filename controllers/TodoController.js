@@ -1,5 +1,5 @@
 import todoList from '../models/todoListModel.js';
-
+import { StatusCodes } from 'http-status-codes';
 
 export const getTodoLists = async (req, res) => {
     try {
@@ -13,32 +13,33 @@ export const getTodoLists = async (req, res) => {
 
         if (fetchLists.length === 0) {
             // Return a message if no to-do items are found
-            return res.status(404).json({
-                message: "No to-do items found, Add first"
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message: "No to-do items found, please add one"
             });
         }
 
-        return res.status(200).json({
+        return res.status(StatusCodes.OK).json({
             data: fetchLists,
             message: "List fetched successfully"
         });
 
     } catch (error) {
         console.error(error);
-        return res.status(500).send({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
             message: "Error in fetchList function",
             error: error.message // Include error message in response
         });
     }
 };
 
+
 export const createTodo = async (req, res) => { 
     try {
-       const { title, task } = req.body;
-       const user = req.user; // Directly access req.user
+        const { title, task } = req.body;
+        const user = req.user; // Directly access req.user
 
         if (!title || !task) {
-            return res.status(400).send({
+            return res.status(StatusCodes.BAD_REQUEST).send({
                 message: "Please provide all data"
             });
         }
@@ -50,14 +51,15 @@ export const createTodo = async (req, res) => {
             userId: user.id // Use user.id based on your token payload
         });
         
-        return res.status(200).json({
+        return res.status(StatusCodes.OK).json({
             data: newList,
             message: "Note added successfully"
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).send({
-            message: "Error in Add List function"
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Error in Add List function",
+            error: error.message // Include error message in response
         });
     }
 };
@@ -68,18 +70,19 @@ export const deleteTodo = async (req, res) => {
         const result = await todoList.findByIdAndDelete(id);
 
         if (!result) {
-            return res.status(404).send({
+            return res.status(StatusCodes.NOT_FOUND).send({
                 message: "To-Do item not found"
             });
         }
 
-        return res.status(200).send({
+        return res.status(StatusCodes.OK).send({
             message: "To-Do item deleted successfully"
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).send({
-            message: "Error deleting to-do item"
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            message: "Error deleting to-do item",
+            error: error.message // Include error message in response
         });
     }
 };
@@ -92,7 +95,7 @@ export const updateTodo = async (req, res) => {
 
         // Ensure that title or task is provided for the update
         if (!title && !task) {
-            return res.status(400).send({
+            return res.status(StatusCodes.BAD_REQUEST).send({
                 message: "At least one of title or task is required for update"
             });
         }
@@ -108,26 +111,21 @@ export const updateTodo = async (req, res) => {
         );
 
         if (!updatedList) {
-            return res.status(404).send({
+            return res.status(StatusCodes.NOT_FOUND).send({
                 message: "Todo item not found or you are not authorized to update this item"
             });
         }
 
-        return res.status(200).json({
+        return res.status(StatusCodes.OK).json({
             data: updatedList,
             message: "Note updated successfully"
         });
 
     } catch (error) {
         console.error(error);
-        return res.status(500).send({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
             message: "Error in updateTodo function",
             error: error.message // Include error message in response
         });
     }
 };
-
-
-
-
-

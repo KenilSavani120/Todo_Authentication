@@ -3,50 +3,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
 import { hashPassword } from "../config/passportConfig.js";
-import JWT from 'jsonwebtoken';
 import dotenv from "dotenv";
 
 dotenv.config();
 
-// export const authorization = async (req, res, next) => {
-//     try {
-//         const authHeader = req.headers['authorization'];
-//         if (!authHeader) {
-//             return res.status(401).send({
-//                 success: false,
-//                 message: 'Authorization header is missing',
-//             });
-//         }
-
-//         const token = authHeader.split(' ')[1]; // Extract the token
-//         if (!token) {
-//             return res.status(401).send({
-//                 success: false,
-//                 message: 'Token is missing',
-//             });
-//         }
-
-//         JWT.verify(token, process.env.JWT_SECRET, (err, decode) => {
-//             if (err) {
-//                 return res.status(401).send({
-//                     success: false,
-//                     message: 'Un-Authorized User',
-//                 });
-//             } else {
-//                 req.body.id = decode.id;
-//                 next();
-//             }
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send({
-//             success: false,
-//             message: 'Please provide Auth Token',
-//             error,
-//         });
-//     }
-// };
-
+// User registration
 export const userRegister = async (req, res) => {
     try {
         const { name, email, password } = req.body; // Extract name, email, and password from request body
@@ -54,14 +15,14 @@ export const userRegister = async (req, res) => {
         // Check if the email already exists
         const emailExist = await users.findOne({ email });
         if (emailExist) {
-            return res.status(400).json({
+            return res.status(StatusCodes.BAD_REQUEST).json({
                 message: "Email already exists, try a different email"
             });
         }
 
         // Ensure the password is provided
         if (!password) {
-            return res.status(400).json({
+            return res.status(StatusCodes.BAD_REQUEST).json({
                 message: "Password is required"
             });
         }
@@ -73,20 +34,20 @@ export const userRegister = async (req, res) => {
         const newUser = await users.create({ name, email, password: hashedPassword });
         newUser.password = undefined; // Correctly remove the password from the response
 
-        return res.status(200).json({
+        return res.status(StatusCodes.OK).json({
             data: newUser,
             message: "User added successfully"
         });
     } catch (error) {
         console.error("Error in Add User function:", error); // Log the error for debugging
-        return res.status(500).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error in Add User function",
             error: error.message // Send the error message to the client for better debugging
         });
     }
 };
 
-
+// User login
 export const userLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -108,14 +69,10 @@ export const userLogin = async (req, res) => {
             });
         }
 
-        // Debugging: Log the passwords
-        // console.log('Request password:', password);
-        // console.log('Stored password:', user.password);
-
-        if(user.password === undefined) {
+        if (user.password === undefined) {
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
                 success: false,
-                message: "this email is login via google account",
+                message: "This email is registered via Google account",
             });
         }
 
@@ -136,12 +93,12 @@ export const userLogin = async (req, res) => {
         });
 
         const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '60  s',
+            expiresIn: '60s',
         });
 
         // Decode the tokens to get expiration times
-        const accessTokenPayload = JWT.decode(accessToken);
-        const refreshTokenPayload = JWT.decode(refreshToken);
+        const accessTokenPayload = jwt.decode(accessToken);
+        const refreshTokenPayload = jwt.decode(refreshToken);
 
         // Get current time in seconds
         const currentTime = Math.floor(Date.now() / 1000);
@@ -151,8 +108,6 @@ export const userLogin = async (req, res) => {
         const refreshTokenExpiresIn = refreshTokenPayload.exp - currentTime;
 
         // Clear sensitive data
-        req.user = user;
-
         user.password = undefined;
 
         // Respond with tokens and user info
@@ -175,4 +130,3 @@ export const userLogin = async (req, res) => {
         });
     }
 };
-

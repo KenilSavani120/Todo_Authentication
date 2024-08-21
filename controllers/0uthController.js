@@ -13,7 +13,7 @@ passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
     callbackURL: "http://localhost:8000/auth/google/redirect",
-    passReqToCallback: true
+    passReqToCallback: true // Pass the request object to the callback
 },
     async (request, accessToken, refreshToken, profile, done) => {
         try {
@@ -36,21 +36,21 @@ passport.use(new GoogleStrategy({
                 return done(null, user);
             }
         } catch (err) {
-            return done(err, null);
+            return done(err, null); // Return error to the done callback
         }
     }
 ));
 
 passport.serializeUser((user, done) => {
-    done(null, user._id); // Serialize user._id
+    done(null, user._id); // Serialize user._id into the session
 });
 
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);
-        done(null, user);
+        done(null, user); // Pass the user object to the done callback
     } catch (err) {
-        done(err, null);
+        done(err, null); // Return error to the done callback
     }
 });
 
