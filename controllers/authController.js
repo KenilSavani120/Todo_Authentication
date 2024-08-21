@@ -1,9 +1,11 @@
-import users from "../models/userManualRegistrationModel.js";
+import users from "../models/authModel.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
 import { hashPassword } from "../config/passportConfig.js";
 import dotenv from "dotenv";
+import clipboardy from 'clipboardy';
+
 
 dotenv.config();
 
@@ -89,7 +91,7 @@ export const userLogin = async (req, res) => {
 
         // Generate tokens
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: '100s',
+            expiresIn: '120s',
         });
 
         const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -106,6 +108,10 @@ export const userLogin = async (req, res) => {
         // Calculate time remaining for access token and refresh token
         const accessTokenExpiresIn = accessTokenPayload.exp - currentTime;
         const refreshTokenExpiresIn = refreshTokenPayload.exp - currentTime;
+
+        // it is only for backend
+        clipboardy.writeSync(accessToken.toString());
+        clipboardy.readSync();
 
         // Clear sensitive data
         user.password = undefined;

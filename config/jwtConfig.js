@@ -10,7 +10,7 @@ export const authenticateToken = (req, res, next) => {
     if (!authHeader) return res.status(401).send({ message: 'Authorization header missing' });
 
     const token = authHeader.split(' ')[1];
-    console.log('Token:', token); // Debugging log
+    // console.log('Token:', token); // Debugging log
 
     if (!token) return res.status(401).send({ message: 'Token required' });
 

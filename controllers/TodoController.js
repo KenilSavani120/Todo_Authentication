@@ -1,4 +1,4 @@
-import todoList from '../models/todoListModel.js';
+import todoList from '../models/todoModel.js';
 import { StatusCodes } from 'http-status-codes';
 
 export const getTodoLists = async (req, res) => {
@@ -76,7 +76,8 @@ export const deleteTodo = async (req, res) => {
         }
 
         return res.status(StatusCodes.OK).send({
-            message: "To-Do item deleted successfully"
+            message: "To-Do item deleted successfully",
+            data:result
         });
     } catch (error) {
         console.error(error);

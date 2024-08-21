@@ -2,9 +2,14 @@ import express from 'express';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import connectDb from './database/db.js'; 
-import passport from './controllers/0uthController.js'; // Initialize Passport from your config file
-import router from './routes/routes.js';
+import passport from './controllers/0authController.js'; // Initialize Passport from your config file
+import taskRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import jwt from 'jsonwebtoken'; 
+import { StatusCodes } from 'http-status-codes'; // Import StatusCodes from http-status-codes
+import clipboardy from 'clipboardy';
+
+
 
 
 dotenv.config();
@@ -29,7 +34,8 @@ app.use(passport.session());
 connectDb();
 
 // Routes setup
-app.use('/api/v1/users', router); // Apply authenticateToken middleware to protect routes
+app.use('/api/v1/users', taskRoutes); // Apply authenticateToken middleware to protect routes
+app.use('/api/v1/auth', authRoutes); // Apply authenticateToken middleware to protect routes
 
 // Google OAuth routes
 app.get('/auth/google',
@@ -40,11 +46,16 @@ app.get('/auth/google/redirect',
   (req, res) => {
     // Successful authentication, generate JWT token
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    console.log(token);
-    
+    console.log("Your access token is:", token);
+    clipboardy.writeSync(token);
+    clipboardy.readSync();
 
+    res.status(StatusCodes.OK).json({
+      
+      message: 'Authentication successful'
+      })
+    
     // Redirect with JWT token
-    res.redirect(`v1/users`); // Redirect with JWT token in the URL
   });
 
 const PORT = process.env.PORT || 3000;

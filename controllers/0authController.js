@@ -1,6 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import User from '../models/userModelLogin.js';
+import User from '../models/0authModel.js';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 
@@ -8,11 +8,12 @@ dotenv.config();
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const CALLBACK_URL = process.env.CALLBACK_URL
 
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:8000/auth/google/redirect",
+    callbackURL: CALLBACK_URL,
     passReqToCallback: true // Pass the request object to the callback
 },
     async (request, accessToken, refreshToken, profile, done) => {
