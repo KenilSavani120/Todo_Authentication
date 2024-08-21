@@ -8,12 +8,3 @@ export const hashPassword = async (password) => {
     return hashedPassword;
 };
 
-// export const comparePassword = async (password, hashedPassword) => {
-//     const isMatch = await bcrypt.compare(password, hashedPassword);
-//     return isMatch;
-// };
-
-export const generateToken = (user) => {
-    // Replace 'your_jwt_secret' with your actual secret key
-    return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '455s' });
-};

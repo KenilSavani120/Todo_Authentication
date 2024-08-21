@@ -1,4 +1,4 @@
-import users from "../models/userManualModel.js";
+import users from "../models/userManualRegistrationModel.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
@@ -8,60 +8,60 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const authorization = async (req, res, next) => {
-    try {
-        const authHeader = req.headers['authorization'];
-        if (!authHeader) {
-            return res.status(401).send({
-                success: false,
-                message: 'Authorization header is missing',
-            });
-        }
+// export const authorization = async (req, res, next) => {
+//     try {
+//         const authHeader = req.headers['authorization'];
+//         if (!authHeader) {
+//             return res.status(401).send({
+//                 success: false,
+//                 message: 'Authorization header is missing',
+//             });
+//         }
 
-        const token = authHeader.split(' ')[1]; // Extract the token
-        if (!token) {
-            return res.status(401).send({
-                success: false,
-                message: 'Token is missing',
-            });
-        }
+//         const token = authHeader.split(' ')[1]; // Extract the token
+//         if (!token) {
+//             return res.status(401).send({
+//                 success: false,
+//                 message: 'Token is missing',
+//             });
+//         }
 
-        JWT.verify(token, process.env.JWT_SECRET, (err, decode) => {
-            if (err) {
-                return res.status(401).send({
-                    success: false,
-                    message: 'Un-Authorized User',
-                });
-            } else {
-                req.body.id = decode.id;
-                next();
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send({
-            success: false,
-            message: 'Please provide Auth Token',
-            error,
-        });
-    }
-};
+//         JWT.verify(token, process.env.JWT_SECRET, (err, decode) => {
+//             if (err) {
+//                 return res.status(401).send({
+//                     success: false,
+//                     message: 'Un-Authorized User',
+//                 });
+//             } else {
+//                 req.body.id = decode.id;
+//                 next();
+//             }
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send({
+//             success: false,
+//             message: 'Please provide Auth Token',
+//             error,
+//         });
+//     }
+// };
 
 export const userRegister = async (req, res) => {
     try {
-        const { email, password } = req.body; // Extract email and password from request body
+        const { name, email, password } = req.body; // Extract name, email, and password from request body
 
         // Check if the email already exists
-        const emailExist = await users.findOne({ email }); // Use email object in the findOne query
+        const emailExist = await users.findOne({ email });
         if (emailExist) {
-            return res.status(400).send({
+            return res.status(400).json({
                 message: "Email already exists, try a different email"
             });
         }
 
         // Ensure the password is provided
         if (!password) {
-            return res.status(400).send({
+            return res.status(400).json({
                 message: "Password is required"
             });
         }
@@ -70,19 +70,22 @@ export const userRegister = async (req, res) => {
         const hashedPassword = await hashPassword(password);
 
         // Create and save the new user entry
-        const newUser = await users.create({ ...req.body, password: hashedPassword });
-        newEmail.password = undefined
+        const newUser = await users.create({ name, email, password: hashedPassword });
+        newUser.password = undefined; // Correctly remove the password from the response
+
         return res.status(200).json({
-            data:newUser,
+            data: newUser,
             message: "User added successfully"
         });
     } catch (error) {
-        console.log(error);
-        return res.status(500).send({
-            message: "Error in Add User function"
+        console.error("Error in Add User function:", error); // Log the error for debugging
+        return res.status(500).json({
+            message: "Error in Add User function",
+            error: error.message // Send the error message to the client for better debugging
         });
     }
 };
+
 
 export const userLogin = async (req, res) => {
     try {
@@ -125,6 +128,8 @@ export const userLogin = async (req, res) => {
             });
         }
 
+        req.user = user;
+
         // Generate tokens
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
             expiresIn: '100s',
@@ -146,6 +151,8 @@ export const userLogin = async (req, res) => {
         const refreshTokenExpiresIn = refreshTokenPayload.exp - currentTime;
 
         // Clear sensitive data
+        req.user = user;
+
         user.password = undefined;
 
         // Respond with tokens and user info

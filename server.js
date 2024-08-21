@@ -1,12 +1,11 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import session from 'express-session';
 import dotenv from 'dotenv';
-import connectDb from './database/db.js'; // Adjust import if necessary
-// import todo from './routes/authRoutes.js';
+import connectDb from './database/db.js'; 
 import passport from './controllers/0uthController.js'; // Initialize Passport from your config file
-import { authenticateToken } from './config/jwtConfig.js';
-import router from './routes/todoRoutes.js';
+import router from './routes/routes.js';
+import jwt from 'jsonwebtoken'; 
+
 
 dotenv.config();
 
@@ -14,8 +13,6 @@ const app = express();
 
 // Middleware setup
 app.use(express.json());
-router.use(authenticateToken);
-// app.use(express.urlencoded({ extended: true }));
 
 // Session setup
 app.use(session({
@@ -32,7 +29,7 @@ app.use(passport.session());
 connectDb();
 
 // Routes setup
-app.use('/v1/users', router);
+app.use('/v1/users', router); // Apply authenticateToken middleware to protect routes
 
 // Google OAuth routes
 app.get('/auth/google',
@@ -40,9 +37,14 @@ app.get('/auth/google',
 
 app.get('/auth/google/redirect',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/phone/v1/');
+  (req, res) => {
+    // Successful authentication, generate JWT token
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    console.log(token);
+    
+
+    // Redirect with JWT token
+    res.redirect(`v1/users`); // Redirect with JWT token in the URL
   });
 
 const PORT = process.env.PORT || 3000;

@@ -21,6 +21,7 @@ export const authenticateToken = (req, res, next) => {
         }
 
         req.user = user; // Attach user to request object
+        // console.log('Verified User:', req.user); // Debugging log
         next();
     });
 };
