@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
 const todoListSchema = new mongoose.Schema({
     title: {
@@ -12,7 +12,7 @@ const todoListSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User' //  if you want to populate the user information
+        ref: 'User' // if you want to populate the user information
     },
     createdOn: {
         type: Date,
@@ -20,5 +20,4 @@ const todoListSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("todoList", todoListSchema);
-
+module.exports = mongoose.model('todoList', todoListSchema);

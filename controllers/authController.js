@@ -1,16 +1,15 @@
-import users from "../models/authModel.js";
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import { StatusCodes } from 'http-status-codes';
-import { hashPassword } from "../config/passportConfig.js";
-import dotenv from "dotenv";
-import clipboardy from 'clipboardy';
-
+const users = require('../models/authModel');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const { StatusCodes } = require('http-status-codes');
+const { hashPassword } = require('../config/passportConfig');
+const dotenv = require('dotenv');
+// const clipboardy = require('clipboardy');
 
 dotenv.config();
 
 // User registration
-export const userRegister = async (req, res) => {
+const userRegister = async (req, res) => {
     try {
         const { name, email, password } = req.body; // Extract name, email, and password from request body
 
@@ -50,7 +49,7 @@ export const userRegister = async (req, res) => {
 };
 
 // User login
-export const userLogin = async (req, res) => {
+const userLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -110,8 +109,8 @@ export const userLogin = async (req, res) => {
         const refreshTokenExpiresIn = refreshTokenPayload.exp - currentTime;
 
         // it is only for backend
-        clipboardy.writeSync(accessToken.toString());
-        clipboardy.readSync();
+        // clipboardy.writeSync(accessToken.toString());
+        // clipboardy.readSync();
 
         // Clear sensitive data
         user.password = undefined;
@@ -136,3 +135,5 @@ export const userLogin = async (req, res) => {
         });
     }
 };
+
+module.exports = { userRegister, userLogin };

@@ -1,14 +1,11 @@
-import { body,validationResult } from "express-validator";
+const { body } = require('express-validator');
 
-export const emailValidator = [
-
+const emailValidator = [
     body("email")
         .isEmail()
         .withMessage('Please enter a valid email address')
-        .normalizeEmail() ,// Optional: Normalize the email by converting it to lowercase, etc.,
-    // Password validation
-
-
+        .normalizeEmail(), // Optional: Normalize the email by converting it to lowercase, etc.
+    
     body("password")
         .isLength({ min: 8 })
         .withMessage('Password must be at least 8 characters long')
@@ -16,9 +13,10 @@ export const emailValidator = [
         .withMessage('Password must contain at least one uppercase letter')
         .matches(/[0-9]/)
         .withMessage('Password must contain at least one number'),
+
     body("name")
-    .isLength({ min: 3 })
-        .withMessage('Name must be at least 3 characters long')    
+        .isLength({ min: 3 })
+        .withMessage('Name must be at least 3 characters long')
 ];
 
-
+module.exports = { emailValidator };

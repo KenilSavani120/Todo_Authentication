@@ -1,16 +1,12 @@
-import express from 'express';
-import session from 'express-session';
-import dotenv from 'dotenv';
-import connectDb from './database/db.js'; 
-import passport from './controllers/0authController.js'; // Initialize Passport from your config file
-import taskRoutes from './routes/userRoutes.js';
-import authRoutes from './routes/authRoutes.js';
-import jwt from 'jsonwebtoken'; 
-import { StatusCodes } from 'http-status-codes'; // Import StatusCodes from http-status-codes
-import clipboardy from 'clipboardy';
-
-
-
+const express = require('express');
+const session = require('express-session');
+const dotenv = require('dotenv');
+const connectDb = require('./database/db');
+const passport = require('./controllers/0authController');
+const taskRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
+const jwt = require('jsonwebtoken');
+const { StatusCodes } = require('http-status-codes');
 
 dotenv.config();
 
@@ -21,7 +17,7 @@ app.use(express.json());
 
 // Session setup
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your_session_secret', // Use a dedicated session secret
+  secret: process.env.SESSION_SECRET || 'your_session_secret',
   resave: false,
   saveUninitialized: false,
 }));
@@ -34,8 +30,8 @@ app.use(passport.session());
 connectDb();
 
 // Routes setup
-app.use('/api/v1/users', taskRoutes); // Apply authenticateToken middleware to protect routes
-app.use('/api/v1/auth', authRoutes); // Apply authenticateToken middleware to protect routes
+app.use('/api/v1/users', taskRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 // Google OAuth routes
 app.get('/auth/google',
@@ -43,19 +39,25 @@ app.get('/auth/google',
 
 app.get('/auth/google/redirect',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    // Successful authentication, generate JWT token
-    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    console.log("Your access token is:", token);
-    clipboardy.writeSync(token);
-    clipboardy.readSync();
+  async (req, res) => {
+    try {
+      const clipboardy = await import('clipboardy'); // Dynamically import clipboardy
 
-    res.status(StatusCodes.OK).json({
-      
-      message: 'Authentication successful'
-      })
-    
-    // Redirect with JWT token
+      // Successful authentication, generate JWT token
+      const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '120s' });
+      console.log("Your access token is:", token);
+      // clipboardy.writeSync(token);
+      // clipboardy.readSync();
+
+      res.status(StatusCodes.OK).json({
+        message: 'Authentication successful'
+      });
+    } catch (error) {
+      console.error("Error during token handling:", error);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error'
+      });
+    }
   });
 
 const PORT = process.env.PORT || 3000;

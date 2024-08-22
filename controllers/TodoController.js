@@ -1,7 +1,9 @@
-import todoList from '../models/todoModel.js';
-import { StatusCodes } from 'http-status-codes';
+const todoList = require('../models/todoModel');
+const { StatusCodes } = require('http-status-codes');
 
-export const getTodoLists = async (req, res) => {
+
+// Get all to-do lists for a user
+const getTodoLists = async (req, res) => {
     try {
         const user = req.user; // Get the logged-in user
         const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
@@ -25,15 +27,15 @@ export const getTodoLists = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: "Error in fetchList function",
             error: error.message // Include error message in response
         });
     }
 };
 
-
-export const createTodo = async (req, res) => { 
+// Create a new to-do item
+const createTodo = async (req, res) => { 
     try {
         const { title, task } = req.body;
         const user = req.user; // Directly access req.user
@@ -64,7 +66,8 @@ export const createTodo = async (req, res) => {
     }
 };
 
-export const deleteTodo = async (req, res) => {
+// Delete a to-do item
+const deleteTodo = async (req, res) => {
     try {
         const { id } = req.params;
         const result = await todoList.findByIdAndDelete(id);
@@ -77,7 +80,7 @@ export const deleteTodo = async (req, res) => {
 
         return res.status(StatusCodes.OK).send({
             message: "To-Do item deleted successfully",
-            data:result
+            data: result
         });
     } catch (error) {
         console.error(error);
@@ -88,7 +91,8 @@ export const deleteTodo = async (req, res) => {
     }
 };
 
-export const updateTodo = async (req, res) => {
+// Update a to-do item
+const updateTodo = async (req, res) => {
     try {
         const { id } = req.params; // Get the ID from the URL parameters
         const user = req.user; // Get the logged-in user
@@ -130,3 +134,5 @@ export const updateTodo = async (req, res) => {
         });
     }
 };
+
+module.exports = { getTodoLists, createTodo, deleteTodo, updateTodo };

@@ -1,9 +1,9 @@
-import bcrypt from 'bcryptjs';
+const bcrypt = require('bcryptjs');
 
 const saltRounds = 10; // Number of salt rounds for bcrypt hashing
 
 // Function to hash the user's password
-export const hashPassword = async (password) => {
+const hashPassword = async (password) => {
     try {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         return hashedPassword;
@@ -12,6 +12,9 @@ export const hashPassword = async (password) => {
         throw new Error('Error hashing password'); // You can handle this error in the calling function
     }
 };
+
+module.exports = { hashPassword };
+
 
 
 // import bcrypt from 'bcryptjs';

@@ -1,9 +1,9 @@
-import jwt from 'jsonwebtoken';
-import dotenv from "dotenv";
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
-export const authenticateToken = (req, res, next) => {
+const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     console.log('Auth Header:', authHeader); // Debugging log
 
@@ -17,7 +17,7 @@ export const authenticateToken = (req, res, next) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) {
             console.error('Token verification error:', err); // Debugging log
-            return res.status(403).send({ message: 'Login require - Session is Expire ,Invalid token' });
+            return res.status(403).send({ message: 'Login required - Session is expired, Invalid token' });
         }
 
         req.user = user; // Attach user to request object
@@ -25,3 +25,5 @@ export const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+module.exports = { authenticateToken };

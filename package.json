@@ -2,16 +2,16 @@
   "name": "to-do-authorization",
   "version": "1.0.0",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "nodemon start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage --verbose"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@putout/plugin-convert-esm-to-commonjs": "^6.0.2",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "clipboardy": "^4.0.0",
@@ -26,5 +26,10 @@
     "nodemon": "^3.1.4",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "@shelf/jest-mongodb": "^4.3.2",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

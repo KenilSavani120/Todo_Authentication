@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
 const userRegisterSchema = new mongoose.Schema({
-     name: {
+    name: {
         type: String,
         required: true
     },
@@ -9,11 +9,11 @@ const userRegisterSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
-    }, 
-     password: {
+    },
+    password: {
         type: String,
         required: true
     }
 });
 
-export default mongoose.model("users", userRegisterSchema);
+module.exports = mongoose.model('users', userRegisterSchema);
